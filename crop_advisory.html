@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Agricultural advisory and disease diagnosis app for farmers">
+    <meta name="theme-color" content="#15803d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HKisaan">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" type="image/png" href="/static/uploads/logo-192.png">
+    <link rel="apple-touch-icon" href="/static/uploads/logo-192.png">
+    <script src="/static/js/farmer-theme.js"></script>
+    <title>فصل مشورہ - ہمارا کسان</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/farmer-portal.css">
+    <style>
+        body.farmer-portal { font-family: 'Noto Sans Arabic', sans-serif; margin: 0; }
+        .advisory-card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(21, 128, 61, 0.08); padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(21, 128, 61, 0.06);
+            border-right: 6px solid #22c55e;
+        }
+        .crop-pill {
+            background: #15803d; color: white;
+            border-radius: 999px; padding: 8px 20px; font-size: 1rem;
+            display: inline-block; margin-bottom: 6px;
+        }
+        .section-header { font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; color: #111; }
+        html[data-theme="dark"] .section-header { color: var(--hk-text); }
+    </style>
+</head>
+<body class="farmer-portal">
+
+{% set recs = crop_recommendations | default([]) %}
+
+<aside class="farmer-sidebar">
+    <div class="farmer-sidebar__head">
+        <div class="farmer-sidebar__logo">
+            <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان" class="hk-logo-img">
+        </div>
+        <h3 class="farmer-sidebar__title">🚜 ہمارا کسان</h3>
+    </div>
+    <nav class="farmer-sidebar__nav">
+        <a href="/dashboard"><i class="bi bi-grid-fill"></i> ڈیش بورڈ</a>
+        <a href="/crop-advisory" class="active"><i class="bi bi-flower1"></i> فصل مشورہ</a>
+        <a href="/disease"><i class="bi bi-camera-fill"></i> بیماری تشخیص</a>
+        <a href="/tips"><i class="bi bi-newspaper"></i> زراعی خبریں</a>
+        <a href="/profile"><i class="bi bi-person-circle"></i> میری پروفائل</a>
+        <hr class="opacity-25 mx-3">
+        <a href="/logout" class="text-warning"><i class="bi bi-box-arrow-right"></i> لاگ آؤٹ</a>
+    </nav>
+</aside>
+
+<div class="farmer-main">
+    <div class="hk-topbar mb-3">
+        <div class="hk-topbar__logo" aria-hidden="true">
+            <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان">
+        </div>
+        <div class="hk-topbar__spacer"></div>
+        <button type="button" class="farmer-theme-toggle-main" onclick="toggleFarmerTheme()" title="روشن / تاریک موڈ">
+            <i class="bi bi-moon-stars farmer-theme-icon-when-light"></i>
+            <i class="bi bi-sun-fill farmer-theme-icon-when-dark"></i>
+            <span class="farmer-theme-label"></span>
+        </button>
+    </div>
+    <div class="mb-4">
+        <h1 class="fw-bold hk-page-title">فصل مشورہ 🌾</h1>
+        <div>
+            <span class="crop-pill"><i class="bi bi-flower2 me-1"></i>{{ user.crop_type or 'آپ کی فصل' }}</span>
+            <span class="text-muted ms-2">آپ کی فصل کے لیے تجاویز</span>
+        </div>
+    </div>
+
+    <h2 class="section-header hk-page-title">🌱 فصل کی تجاویز</h2>
+    <p class="text-muted mb-4">یہ مشورے آپ کی پروفائل اور فصل کی بنیاد پر سسٹم کی طرف سے تیار کیے جاتے ہیں۔</p>
+
+    {% if recs | length %}
+        {% for r in recs %}
+        <div class="advisory-card">
+            {% if r is mapping %}
+                {% if r.get('title') %}
+                <h3 class="fw-bold mb-3">{{ r.get('title') }}</h3>
+                {% endif %}
+                <div class="fs-5 lh-base advisory-card-body text-dark">
+                    {% if r.get('content') %}
+                        {{ r.get('content') }}
+                    {% elif r.get('body') %}
+                        {{ r.get('body') }}
+                    {% elif r.get('text') %}
+                        {{ r.get('text') }}
+                    {% endif %}
+                </div>
+                {% if r.get('created_at') %}
+                <p class="text-muted small mt-3 mb-0">{{ r.get('created_at') }}</p>
+                {% endif %}
+            {% else %}
+                <div class="fs-5 lh-base advisory-card-body text-dark">{{ r }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="advisory-card text-center text-muted py-5">
+            <i class="bi bi-hourglass-split fs-1 d-block mb-3 opacity-50"></i>
+            <p class="mb-0 fs-5">ابھی کوئی فصل کی تجویز دستیاب نہیں۔</p>
+            <p class="mb-0 mt-2 small">جب سرور سے تجاویز شامل ہوں گی تو یہاں خودکار طور پر دکھائی جائیں گی۔</p>
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-5 p-4 bg-white rounded-4 shadow-sm border" style="border-color: rgba(21,128,61,0.12) !important;">
+        <i class="bi bi-camera-fill text-success display-4"></i>
+        <h4 class="fw-bold mt-2">فصل میں بیماری نظر آئے؟</h4>
+        <p class="text-muted">AI سے فوری تشخیص کروائیں</p>
+        <a href="/disease" class="btn btn-success btn-lg rounded-pill px-5">
+            <i class="bi bi-camera me-2"></i>تصویر اپلوڈ کریں
+        </a>
+    </div>
+
+</div>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
+                .then((registration) => {
+                    console.log('✅ Service Worker registered:', registration);
+                })
+                .catch((error) => {
+                    console.log('❌ Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
+
+{% set nav_active = 'crop' %}
+{% include 'partials/farmer_mobile_nav.html' %}
+</body>
+</html>

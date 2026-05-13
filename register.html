@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Agricultural advisory and disease diagnosis app for farmers">
+<meta name="theme-color" content="#15803d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HKisaan">
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<link rel="icon" type="image/png" href="/static/uploads/logo-192.png">
+<link rel="apple-touch-icon" href="/static/uploads/logo-192.png">
+<script src="/static/js/farmer-theme.js"></script>
+<title>ہمارا کسان - رجسٹریشن</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="/static/css/farmer-portal.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  background: linear-gradient(165deg, #f0fdf4 0%, #dcfce7 100%);
+  min-height: 100vh;
+  padding: 1.5rem 1rem 3rem;
+  direction: rtl;
+}
+
+.page-wrap { max-width: 560px; margin: 0 auto; }
+
+.brand-bar { text-align: center; margin-bottom: 1.25rem; }
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  color: #15803d;
+  padding: 0.6rem 1.25rem;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: 1px solid rgba(21, 128, 61, 0.12);
+  box-shadow: 0 4px 20px rgba(21, 128, 61, 0.08);
+}
+.logo-slot {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  border: 2px dashed #86efac;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #15803d;
+  flex-shrink: 0;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(21, 128, 61, 0.1);
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(21, 128, 61, 0.1);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #15803d 0%, #166534 55%, #14532d 100%);
+  padding: 1.8rem 1.75rem 1.5rem;
+}
+.header-title { color: #fff; font-size: 1.45rem; font-weight: 700; line-height: 1.6; }
+.header-sub { color: rgba(255,255,255,0.78); font-size: 0.88rem; margin-top: 0.3rem; line-height: 1.9; }
+.header-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  color: #c8ffd4;
+  font-size: 0.75rem;
+  padding: 3px 12px;
+  border-radius: 20px;
+  margin-top: 0.6rem;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.form-body { padding: 1.75rem 1.75rem 1.5rem; }
+
+.section-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #15803d;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1.5px solid rgba(21, 128, 61, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field-group { margin-bottom: 1.1rem; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+
+label {
+  display: block;
+  font-size: 0.82rem;
+  color: #166534;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  line-height: 1.8;
+}
+.required { color: #c0392b; margin-right: 3px; }
+
+/* KEY FIX: all inputs are LTR so English types naturally */
+input, select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 0.95rem;
+  color: #14532d;
+  background: #f0fdf4;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  direction: ltr;
+  text-align: left;
+  outline: none;
+}
+input::placeholder { color: #86a793; font-size: 0.85rem; }
+input:focus, select:focus {
+  border-color: #15803d;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.12);
+}
+
+/* Dropdowns keep Urdu font and RTL */
+select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2315803d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 2rem;
+  font-family: 'Noto Nastaliq Urdu', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.phone-wrap { position: relative; }
+.phone-prefix {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 55px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+  color: #15803d;
+  font-weight: 700;
+  border-left: 1.5px solid #bbf7d0;
+  border-radius: 0 10px 10px 0;
+  background: #ecfdf5;
+  font-family: Arial, sans-serif;
+}
+.phone-wrap input { padding-right: 62px; }
+
+.pass-wrap { position: relative; }
+.eye-btn {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: #15803d; opacity: 0.75; padding: 4px; font-size: 16px;
+}
+
+.field-hint {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-top: 4px;
+  font-family: Arial, sans-serif;
+  direction: ltr;
+  text-align: left;
+}
+
+.divider { height: 1px; background: rgba(21, 128, 61, 0.1); margin: 1.4rem 0; }
+
+.terms-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 1.2rem;
+}
+.terms-row input[type="checkbox"] {
+  width: 18px; height: 18px;
+  flex-shrink: 0; margin-top: 4px;
+  accent-color: #15803d; cursor: pointer;
+  direction: ltr;
+}
+.terms-text { font-size: 0.8rem; color: #4b5563; line-height: 2; }
+.terms-text a { color: #15803d; font-weight: 700; text-decoration: none; }
+
+.submit-btn {
+  width: 100%;
+  padding: 0.9rem;
+  background: #15803d;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  line-height: 1.8;
+}
+.submit-btn:hover { background: #166534; }
+
+.login-row {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: #6b7280;
+  line-height: 2.2;
+}
+.login-row a { color: #15803d; font-weight: 700; text-decoration: none; }
+
+.card-footer {
+  background: #f0fdf4;
+  border-top: 1px solid rgba(21, 128, 61, 0.12);
+  padding: 0.85rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.footer-badge { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: #166534; }
+.dot-green { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
+
+.error-msg {
+  display: none;
+  background: #fef0f0;
+  border: 1.5px solid #e74c3c;
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: #c0392b;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  line-height: 1.8;
+  font-family: 'Noto Nastaliq Urdu', serif;
+}
+
+@media (max-width: 480px) {
+  .field-row { grid-template-columns: 1fr; }
+  .form-body { padding: 1.25rem; }
+  .card-header { padding: 1.4rem 1.25rem 1.2rem; }
+  .header-title { font-size: 1.2rem; }
+}
+</style>
+</head>
+<body class="farmer-auth">
+
+<button type="button" class="farmer-auth-theme-btn" onclick="toggleFarmerTheme()">
+  <i class="bi bi-moon-stars farmer-theme-icon-when-light"></i>
+  <i class="bi bi-sun-fill farmer-theme-icon-when-dark"></i>
+  <span class="farmer-theme-label"></span>
+</button>
+
+<div class="page-wrap">
+
+  <div class="brand-bar">
+    <div class="brand-logo">
+      <span class="logo-slot" aria-hidden="true">
+        <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان" style="width:100%;height:100%;object-fit:cover;border-radius:999px;display:block;">
+      </span>
+      ہمارا کسان
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div class="card-header">
+      <div class="header-title">🌾 کسان رجسٹریشن</div>
+      <div class="header-sub">اپنی معلومات درج کریں اور ذاتی زرعی مشورے حاصل کریں</div>
+      <div class="header-badge">✦ فیصل آباد ضلع · گندم و چاول</div>
+    </div>
+
+    <div class="form-body">
+      <form id="regForm" action="/register" method="POST">
+
+        <!-- PERSONAL INFO -->
+        <div class="section-label">👤 ذاتی معلومات</div>
+
+        <div class="field-group">
+          <label>پورا نام (Name) <span class="required">*</span></label>
+          <input type="text" name="full_name" id="full_name" placeholder="e.g. Muhammad Iqbal">
+          <div class="error-msg" id="err-name">براہ کرم نام درج کریں</div>
+        </div>
+
+        <div class="field-group">
+          <label>شناختی کارڈ (CNIC) <span class="required">*</span></label>
+          <input type="text" name="cnic" id="cnic" placeholder="35202-1234567-1" maxlength="15">
+          <div class="field-hint">Dashes are added automatically as you type</div>
+          <div class="error-msg" id="err-cnic">درست CNIC درج کریں — مثال: 35202-1234567-1</div>
+        </div>
+
+        <div class="field-group">
+          <label>موبائل نمبر <span class="required">*</span></label>
+          <div class="phone-wrap">
+            <div class="phone-prefix">+92</div>
+            <input type="tel" name="phone" id="phone" placeholder="3001234567" maxlength="10">
+          </div>
+          <div class="error-msg" id="err-phone">10 ہندسے درج کریں، 3 سے شروع ہوں</div>
+        </div>
+
+        <div class="field-group">
+          <label>ای میل Email (اختیاری)</label>
+          <input type="email" name="email" placeholder="example@gmail.com">
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- FARM INFO -->
+        <div class="section-label">🌱 زمین کی معلومات</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>تحصیل <span class="required">*</span></label>
+            <select name="tehsil" id="tehsil">
+              <option value="">منتخب کریں</option>
+              <option value="faisalabad_city">فیصل آباد شہر</option>
+              <option value="jaranwala">جڑانوالہ</option>
+              <option value="samundri">سمندری</option>
+              <option value="tandlianwala">تاندلیانوالہ</option>
+              <option value="chak_jhumra">چک جھمرہ</option>
+              <option value="khurrianwala">خوریانوالہ</option>
+            </select>
+            <div class="error-msg" id="err-tehsil">تحصیل منتخب کریں</div>
+          </div>
+          <div class="field-group">
+            <label>رقبہ (ایکڑ) <span class="required">*</span></label>
+            <input type="number" name="land_acres" id="land_acres" placeholder="e.g. 5" min="0.5" step="0.5">
+            <div class="error-msg" id="err-land">رقبہ درج کریں</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>مٹی کی قسم <span class="required">*</span></label>
+          <select name="soil_type" id="soil_type">
+            <option value="">مٹی کی قسم منتخب کریں</option>
+            <option value="heavy">🟤 بھاری مٹی — گیلی ہو کر چپکتی ہے (Clay)</option>
+            <option value="light">🟡 ہلکی ریتلی مٹی — پانی جلدی جذب ہوتا ہے (Sandy)</option>
+            <option value="medium">🟢 درمیانی مٹی — عام کھیتی کی مٹی (Loam)</option>
+            <option value="kallar">⚪ کلر والی زمین — سفید نمک اوپر آتا ہے (Saline)</option>
+            <option value="silt">🔵 گاد والی مٹی — نہر کنارے کی زمین (Silty)</option>
+          </select>
+          <div class="error-msg" id="err-soil">مٹی کی قسم منتخب کریں</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>فصل کی قسم <span class="required">*</span></label>
+            <select name="crop_type" id="crop_type">
+              <option value="">فصل منتخب کریں</option>
+              <option value="wheat">گندم 🌾</option>
+              <option value="rice">چاول 🌾</option>
+              <option value="both">گندم اور چاول</option>
+            </select>
+            <div class="error-msg" id="err-crop">فصل منتخب کریں</div>
+          </div>
+          <div class="field-group">
+            <label>آبپاشی کا طریقہ</label>
+            <select name="irrigation">
+              <option value="">اختیاری</option>
+              <option value="canal">نہری پانی</option>
+              <option value="tube_well">ٹیوب ویل</option>
+              <option value="rain">بارش</option>
+              <option value="drip">ڈرپ اریگیشن</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- ACCOUNT INFO -->
+        <div class="section-label">🔒 اکاؤنٹ کی معلومات</div>
+
+        <div class="field-group">
+          <label>یوزر نیم (Username) <span class="required">*</span></label>
+          <input type="text" name="username" id="username" placeholder="e.g. iqbal_kisan">
+          <div class="error-msg" id="err-username">یوزر نیم درج کریں</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>پاسورڈ <span class="required">*</span></label>
+            <div class="pass-wrap">
+              <input type="password" name="password" id="password" placeholder="Min 8 characters">
+              <button type="button" class="eye-btn" onclick="togglePass('password',this)" aria-label="پاسورڈ دکھائیں یا چھپائیں">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="error-msg" id="err-pass">کم از کم 8 حروف درج کریں</div>
+          </div>
+          <div class="field-group">
+            <label>پاسورڈ تصدیق <span class="required">*</span></label>
+            <div class="pass-wrap">
+              <input type="password" name="confirm_password" id="confirm_password" placeholder="Repeat password">
+              <button type="button" class="eye-btn" onclick="togglePass('confirm_password',this)" aria-label="پاسورڈ دکھائیں یا چھپائیں">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="error-msg" id="err-confirm">پاسورڈ مماثل نہیں ہے</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="terms-row">
+          <input type="checkbox" id="terms">
+          <div class="terms-text">
+            میں <a href="#">شرائط و ضوابط</a> سے اتفاق کرتا/کرتی ہوں
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">رجسٹریشن مکمل کریں ✓</button>
+
+        <div class="login-row">
+          پہلے سے اکاؤنٹ ہے؟ <a href="/login">لاگ ان کریں</a>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="card-footer">
+      <div class="footer-badge"><span class="dot-green"></span> محفوظ رجسٹریشن</div>
+      <div class="footer-badge"><span class="dot-green"></span> مفت سروس</div>
+      <div class="footer-badge"><span class="dot-green"></span> فیصل آباد مخصوص</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── CNIC AUTO FORMAT (FIXED) ──────────────────────
+document.getElementById('cnic').addEventListener('input', function() {
+  var pos = this.selectionStart;
+  var digits = this.value.replace(/\D/g, '').slice(0, 13); // max 13 digits
+  var out = '';
+
+  for (var i = 0; i < digits.length; i++) {
+    if (i === 5 || i === 12) out += '-';
+    out += digits[i];
+  }
+
+  this.value = out;
+});
+
+// ── PHONE: digits only ────────────────────────────
+document.getElementById('phone').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g, '').slice(0, 10);
+});
+
+// ── TOGGLE PASSWORD ───────────────────────────────
+function togglePass(id, btn) {
+  var inp = document.getElementById(id);
+  var icon = btn.querySelector('i');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  if (icon) icon.className = 'bi ' + (inp.type === 'password' ? 'bi-eye' : 'bi-eye-slash');
+}
+
+// ── ERROR HELPER ──────────────────────────────────
+function err(id, show) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = show ? 'block' : 'none';
+}
+
+// ── FORM SUBMIT VALIDATION ────────────────────────
+document.getElementById('regForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var ok = true;
+
+  var name = document.getElementById('full_name').value.trim();
+  err('err-name', !name); if (!name) ok = false;
+
+  var cnic = document.getElementById('cnic').value.trim();
+  var cnicValid = /^\d{5}-\d{7}-\d$/.test(cnic);
+  err('err-cnic', !cnicValid); if (!cnicValid) ok = false;
+
+  var phone = document.getElementById('phone').value.trim();
+  var phoneValid = /^3\d{9}$/.test(phone);
+  err('err-phone', !phoneValid); if (!phoneValid) ok = false;
+
+  var tehsil = document.getElementById('tehsil').value;
+  err('err-tehsil', !tehsil); if (!tehsil) ok = false;
+
+  var land = parseFloat(document.getElementById('land_acres').value);
+  err('err-land', !land || land <= 0); if (!land || land <= 0) ok = false;
+
+  var soil = document.getElementById('soil_type').value;
+  err('err-soil', !soil); if (!soil) ok = false;
+
+  var crop = document.getElementById('crop_type').value;
+  err('err-crop', !crop); if (!crop) ok = false;
+
+  var username = document.getElementById('username').value.trim();
+  err('err-username', !username); if (!username) ok = false;
+
+  var pass = document.getElementById('password').value;
+  err('err-pass', pass.length < 8); if (pass.length < 8) ok = false;
+
+  var conf = document.getElementById('confirm_password').value;
+  err('err-confirm', pass !== conf); if (pass !== conf) ok = false;
+
+  if (!document.getElementById('terms').checked) {
+    alert('براہ کرم شرائط و ضوابط سے اتفاق کریں');
+    ok = false;
+  }
+
+  if (ok) this.submit(); // send to Flask
+});
+</script>
+<!-- PWA Service Worker Registration -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
+                .then((registration) => {
+                    console.log('✅ Service Worker registered:', registration);
+                })
+                .catch((error) => {
+                    console.log('❌ Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
+
+</body>
+</html>

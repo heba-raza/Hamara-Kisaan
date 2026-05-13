@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Agricultural advisory and disease diagnosis app for farmers">
+    <meta name="theme-color" content="#15803d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HKisaan">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" type="image/png" href="/static/uploads/logo-192.png">
+    <link rel="apple-touch-icon" href="/static/uploads/logo-192.png">
+    <script src="/static/js/farmer-theme.js"></script>
+    <title>ہمارا کسان - ڈیش بورڈ</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/farmer-portal.css">
+    <style>
+        body.farmer-portal { font-family: 'Noto Sans Arabic', sans-serif; margin: 0; }
+        .card-box {
+            border-radius: 16px; border: none; background: white;
+            box-shadow: 0 4px 24px rgba(21, 128, 61, 0.08); padding: 24px; height: 100%;
+            border: 1px solid rgba(21, 128, 61, 0.06);
+        }
+        .weather-card {
+            background: linear-gradient(135deg, #15803d 0%, #22c55e 100%);
+            color: white; border-radius: 16px;
+            box-shadow: 0 8px 28px rgba(21, 128, 61, 0.25);
+        }
+        .feature-icon-wrapper {
+            width: 72px; height: 72px; background: #f0fdf4; color: #15803d;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 16px; margin: 0 auto 12px; font-size: 2.2rem;
+            border: 1px solid rgba(134, 239, 172, 0.5);
+        }
+        .service-link { text-decoration: none; display: block; }
+        .service-link:hover .card-box { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(21, 128, 61, 0.12); transition: 0.2s; }
+        .tip-box { background: #fffbeb; border: 2px solid #fde68a; border-radius: 16px; }
+        .label-text { color: #6b7280; font-size: 0.95rem; margin-bottom: 2px; }
+        .value-text { font-weight: 700; font-size: 1.25rem; color: #111; }
+        .notif-item { border-right: 4px solid #f59e0b; background: #fffdf0; border-radius: 12px; padding: 12px 16px; }
+        .notif-item.critical { border-color: #ef4444; background: #fff5f5; }
+        .notif-scroll { max-height: 260px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-left: 2px; }
+        .btn-speak {
+            background: #15803d; color: white; border: none;
+            border-radius: 50%; width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 14px rgba(21, 128, 61, 0.35); cursor: pointer;
+        }
+        .btn-speak.playing { animation: pulse-green 1.5s infinite; }
+        @keyframes pulse-green {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+    </style>
+</head>
+<body class="farmer-portal">
+
+<aside class="farmer-sidebar">
+    <div class="farmer-sidebar__head">
+        <div class="farmer-sidebar__logo">
+            <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان" class="hk-logo-img">
+        </div>
+        <h3 class="farmer-sidebar__title">🚜 ہمارا کسان</h3>
+    </div>
+    <nav class="farmer-sidebar__nav">
+        <a href="/dashboard" class="active"><i class="bi bi-grid-fill"></i> ڈیش بورڈ</a>
+        <a href="/crop-advisory"><i class="bi bi-flower1"></i> فصل مشورہ</a>
+        <a href="/disease"><i class="bi bi-camera-fill"></i> بیماری تشخیص</a>
+        <a href="/tips"><i class="bi bi-newspaper"></i> زراعی خبریں</a>
+        <a href="/profile"><i class="bi bi-person-circle"></i> میری پروفائل</a>
+        <hr class="opacity-25 mx-3">
+        <a href="/logout" class="text-warning"><i class="bi bi-box-arrow-right"></i> لاگ آؤٹ</a>
+    </nav>
+</aside>
+
+<div class="farmer-main">
+
+    <div class="hk-topbar mb-3">
+        <div class="hk-topbar__logo" aria-hidden="true">
+            <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان">
+        </div>
+        <div class="hk-topbar__spacer"></div>
+        <button type="button" class="farmer-theme-toggle-main" onclick="toggleFarmerTheme()" title="روشن / تاریک موڈ">
+            <i class="bi bi-moon-stars farmer-theme-icon-when-light"></i>
+            <i class="bi bi-sun-fill farmer-theme-icon-when-dark"></i>
+            <span class="farmer-theme-label"></span>
+        </button>
+    </div>
+
+    <!-- Greeting -->
+    <div class="mb-4 text-center">
+        <span class="badge bg-white text-dark shadow-sm p-2 px-3 rounded-pill mb-3">
+            <i class="bi bi-calendar3 text-success"></i>
+            <span id="today-date">آج کی تاریخ</span>
+        </span>
+        <h1 class="fw-bold display-6 hk-page-title">سلام، {{ user.full_name }} صاحب! 👋</h1>
+    </div>
+
+    <!-- Weather + Alert row -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-4 col-md-5">
+            <div class="weather-card p-4 shadow-sm border-0 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-3 fw-bold mb-0" id="wx-temp">--°</h1>
+                        <p class="fs-5 mb-0 opacity-75" id="wx-city">{{ user.tehsil or 'پاکستان' }}</p>
+                        <p class="mb-0 opacity-60" id="wx-humidity">نمی: --</p>
+                    </div>
+                    <div class="text-center">
+                        <i class="bi bi-cloud-sun" id="wx-icon" style="font-size: 4.5rem;"></i>
+                        <p class="fw-bold fs-6 mb-0" id="wx-condition">لوڈ ہو رہا ہے...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-8 col-md-7">
+            <div class="card-box h-100" id="notif-container">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
+                    <span class="text-muted">الرٹ لوڈ ہو رہے ہیں...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services -->
+    <h3 class="fw-bold mb-3">فوری خدمات</h3>
+    <div class="row g-3 mb-5 farmer-service-grid">
+        <div class="col-6 col-lg-3">
+            <a href="/crop-advisory" class="service-link">
+                <div class="card card-box text-center">
+                    <div class="feature-icon-wrapper"><i class="bi bi-flower1"></i></div>
+                    <h5 class="fw-bold text-dark">فصل مشورہ</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a href="/disease" class="service-link">
+                <div class="card card-box text-center">
+                    <div class="feature-icon-wrapper"><i class="bi bi-camera-fill"></i></div>
+                    <h5 class="fw-bold text-dark">بیماری تشخیص</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a href="/tips" class="service-link">
+                <div class="card card-box text-center">
+                    <div class="feature-icon-wrapper"><i class="bi bi-newspaper"></i></div>
+                    <h5 class="fw-bold text-dark">زراعی خبریں</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a href="/profile" class="service-link">
+                <div class="card card-box text-center">
+                    <div class="feature-icon-wrapper"><i class="bi bi-person-circle"></i></div>
+                    <h5 class="fw-bold text-dark">میری پروفائل</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Today's tip (farm details are on profile) -->
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="tip-box p-4 h-100 shadow-sm">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-lightbulb-fill text-warning display-6"></i>
+                        <h4 class="fw-bold mb-0">آج کا مشورہ</h4>
+                    </div>
+                    <button class="btn-speak" onclick="readTip()" id="speak-btn">
+                        <i class="bi bi-volume-up-fill fs-5"></i>
+                    </button>
+                </div>
+                <div class="bg-white p-4 rounded-4 shadow-sm mb-3">
+                    <p id="daily-tip-text" class="mb-0 fs-5 lh-base text-dark">
+                        گندم کی کٹائی سے 15 دن پہلے پانی بند کر دیں تاکہ دانہ مضبوط ہو۔
+                    </p>
+                </div>
+                <a href="/tips" class="btn btn-link text-success fw-bold fs-5 p-0 text-decoration-none">
+                    زراعی خبریں اور اعلانات <i class="bi bi-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /farmer-main -->
+
+{% set nav_active = 'dashboard' %}
+{% include 'partials/farmer_mobile_nav.html' %}
+
+<script>
+// ── DATE ──────────────────────────────────────────
+const months = ['جنوری','فروری','مارچ','اپریل','مئی','جون','جولائی','اگست','ستمبر','اکتوبر','نومبر','دسمبر'];
+const now = new Date();
+document.getElementById('today-date').textContent = `${now.getDate()} ${months[now.getMonth()]}، ${now.getFullYear()}`;
+
+// ── WEATHER ───────────────────────────────────────
+const city = "{{ user.tehsil or 'Faisalabad' }}";
+const weatherIcons = {
+    'Clear':'bi-sun-fill','Clouds':'bi-cloud-fill','Rain':'bi-cloud-rain-fill',
+    'Drizzle':'bi-cloud-drizzle-fill','Thunderstorm':'bi-lightning-rain-fill',
+    'Snow':'bi-snow','Haze':'bi-cloud-haze-fill','Mist':'bi-cloud-haze-fill','Fog':'bi-cloud-haze-fill'
+};
+
+async function loadWeather() {
+    try {
+        const res  = await fetch(`/api/weather/${encodeURIComponent(city)}`);
+        const data = await res.json();
+        if (data.error) return;
+        document.getElementById('wx-temp').textContent      = Math.round(data.temperature) + '°C';
+        document.getElementById('wx-city').textContent      = data.city;
+        document.getElementById('wx-humidity').textContent  = 'نمی: ' + data.humidity + '% | ہوا: ' + data.wind + ' m/s';
+        document.getElementById('wx-condition').textContent = data.condition;
+        const iconClass = weatherIcons[data.condition] || 'bi-cloud-sun';
+        document.getElementById('wx-icon').className        = 'bi ' + iconClass;
+        document.getElementById('wx-icon').style.fontSize   = '4.5rem';
+    } catch(e) { console.log('Weather load failed', e); }
+}
+loadWeather();
+
+// ── NOTIFICATIONS (DB: admin + weather thresholds via check_weather_and_alert) ──
+function dedupeNotificationsForDisplay(items) {
+    const seen = new Set();
+    const out = [];
+    for (const n of items) {
+        const key = (n.title || '') + '\0' + (n.message || '');
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(n);
+    }
+    return out;
+}
+
+async function loadNotifications() {
+    const container = document.getElementById('notif-container');
+    try {
+        const res   = await fetch('/api/farmer/notifications');
+        const items = await res.json();
+        if (!items.length) {
+            container.innerHTML = `
+                <div class="d-flex align-items-center gap-2 text-muted">
+                    <i class="bi bi-bell-slash fs-3"></i>
+                    <span>ابھی کوئی الرٹ نہیں ہے</span>
+                </div>`;
+            return;
+        }
+        const unique = dedupeNotificationsForDisplay(items);
+        const cards = unique.map(n => `
+            <div class="notif-item mb-2 ${n.type === 'critical' ? 'critical' : ''}">
+                <div class="fw-bold">${n.title || 'الرٹ'}</div>
+                <div class="text-muted" style="font-size:0.95rem">${n.message}</div>
+            </div>`).join('');
+        container.innerHTML = `
+            <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                <span class="fw-bold"><i class="bi bi-bell-fill text-warning me-1"></i> الرٹیں</span>
+                <span class="badge rounded-pill bg-warning text-dark">${unique.length}</span>
+            </div>
+            <div class="notif-scroll">${cards}</div>`;
+    } catch(e) {
+        container.innerHTML = '<span class="text-muted">الرٹ لوڈ نہیں ہوسکے</span>';
+    }
+}
+loadNotifications();
+
+// ── SPEECH ────────────────────────────────────────
+const speaker = window.speechSynthesis;
+let selectedVoice = null;
+function setBestVoice() {
+    const voices = speaker.getVoices();
+    selectedVoice = voices.find(v=>v.lang==='ur-PK') || voices.find(v=>v.lang.includes('ur')) || voices.find(v=>v.lang.includes('hi'));
+}
+if (speaker.onvoiceschanged !== undefined) speaker.onvoiceschanged = setBestVoice;
+setBestVoice();
+
+function readTip() {
+    const btn = document.getElementById('speak-btn');
+    if (speaker.speaking) { speaker.cancel(); btn.classList.remove('playing'); return; }
+    const text = document.getElementById('daily-tip-text').innerText;
+    const utt  = new SpeechSynthesisUtterance(text);
+    if (!selectedVoice) setBestVoice();
+    if (selectedVoice) utt.voice = selectedVoice;
+    utt.lang  = 'ur-PK'; utt.rate = 0.8;
+    utt.onstart = () => btn.classList.add('playing');
+    utt.onend   = () => btn.classList.remove('playing');
+    utt.onerror = () => btn.classList.remove('playing');
+    speaker.speak(utt);
+}
+</script>
+<!-- PWA Service Worker Registration -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
+                .then((registration) => {
+                    console.log('✅ Service Worker registered:', registration);
+                })
+                .catch((error) => {
+                    console.log('❌ Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
+</body>
+</html>

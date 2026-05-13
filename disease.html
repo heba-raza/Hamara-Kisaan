@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Agricultural advisory and disease diagnosis app for farmers">
+    <meta name="theme-color" content="#15803d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HKisaan">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" type="image/png" href="/static/uploads/logo-192.png">
+    <link rel="apple-touch-icon" href="/static/uploads/logo-192.png">
+    <script src="/static/js/farmer-theme.js"></script>
+    <title>بیماری تشخیص - ہمارا کسان</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/farmer-portal.css">
+    <style>
+        body.farmer-portal { font-family: 'Noto Sans Arabic', sans-serif; margin: 0; }
+        .camera-box {
+            border: 3px dashed #cbd5e1; border-radius: 20px;
+            background: white; padding: 50px 20px; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 4px 24px rgba(21, 128, 61, 0.08);
+        }
+        .camera-box:hover { border-color: #22c55e; background: #f0fdf4; }
+        #preview-container { display: none; }
+        #image-preview { width: 100%; border-radius: 16px; box-shadow: 0 12px 32px rgba(21, 128, 61, 0.12); max-height: 320px; object-fit: contain; }
+        .result-card { display: none; border: none; border-radius: 20px; background: #fff; box-shadow: 0 8px 32px rgba(21, 128, 61, 0.1); border: 1px solid rgba(21, 128, 61, 0.08); }
+        .diagnosis-header { background: #fff5f5; border-radius: 20px 20px 0 0; padding: 20px; }
+        .diagnosis-header.verified { background: #f0fdf4; }
+        .diagnosis-header.overridden { background: #eff6ff; }
+        .pending-banner { background: #fffbeb; border: 2px solid #fde68a; border-radius: 16px; padding: 20px; text-align: center; display: none; }
+        .crop-badge { background: #15803d; color: white; border-radius: 12px; padding: 6px 16px; font-size: 0.9rem; display: inline-block; margin-bottom: 8px; }
+        .crop-select-wrapper { background: white; border-radius: 18px; padding: 16px 20px; box-shadow: 0 4px 18px rgba(21,128,61,0.08); margin-bottom: 20px; border: 1px solid rgba(21,128,61,0.08); }
+        .crop-select-wrapper label { font-weight: 700; font-size: 1rem; color: #14532d; margin-bottom: 8px; display: block; }
+        .crop-select-wrapper select { border: 2px solid #bbf7d0; border-radius: 12px; padding: 10px 16px; font-size: 1.05rem; width: 100%; background: #f8fffb; color: #166534; font-weight: 600; cursor: pointer; }
+        .crop-select-wrapper select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 0.2rem rgba(34,197,94,0.12); }
+    </style>
+</head>
+<body class="farmer-portal">
+
+<aside class="farmer-sidebar">
+    <div class="farmer-sidebar__head">
+        <div class="farmer-sidebar__logo">
+            <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان" class="hk-logo-img">
+        </div>
+        <h3 class="farmer-sidebar__title">🚜 ہمارا کسان</h3>
+    </div>
+    <nav class="farmer-sidebar__nav">
+        <a href="/dashboard"><i class="bi bi-grid-fill"></i> ڈیش بورڈ</a>
+        <a href="/crop-advisory"><i class="bi bi-flower1"></i> فصل مشورہ</a>
+        <a href="/disease" class="active"><i class="bi bi-camera-fill"></i> بیماری تشخیص</a>
+        <a href="/tips"><i class="bi bi-newspaper"></i> زراعی خبریں</a>
+        <a href="/profile"><i class="bi bi-person-circle"></i> میری پروفائل</a>
+        <hr class="opacity-25 mx-3">
+        <a href="/logout" class="text-warning"><i class="bi bi-box-arrow-right"></i> لاگ آؤٹ</a>
+    </nav>
+</aside>
+
+<div class="farmer-main">
+    <div class="hk-topbar mb-3" style="max-width: 640px; margin-right: auto; margin-left: auto;">
+        <div class="hk-topbar__logo" aria-hidden="true">
+            <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان">
+        </div>
+        <div class="hk-topbar__spacer"></div>
+        <button type="button" class="farmer-theme-toggle-main" onclick="toggleFarmerTheme()" title="روشن / تاریک موڈ">
+            <i class="bi bi-moon-stars farmer-theme-icon-when-light"></i>
+            <i class="bi bi-sun-fill farmer-theme-icon-when-dark"></i>
+            <span class="farmer-theme-label"></span>
+        </button>
+    </div>
+    <div style="max-width: 640px; margin: 0 auto;">
+
+        <div class="text-center mb-4">
+            <div class="crop-badge">
+                <i class="bi bi-flower2 me-1"></i>
+                فصل: {{ user.crop_type or 'گندم' }}
+            </div>
+            <h1 class="fw-bold hk-page-title">بیماری کی تشخیص 🔍</h1>
+            <p class="text-muted">پودے کے متاثرہ حصے کی تصویر اپلوڈ کریں</p>
+        </div>
+
+        <div class="crop-select-wrapper">
+            <label for="crop-select">🌱 فصل منتخب کریں</label>
+            <select id="crop-select">
+                <option value="wheat" {% if user and user.crop_type and ('wheat' in user.crop_type|lower or 'گندم' in user.crop_type) %}selected{% endif %}>🌾 گندم (Wheat)</option>
+                <option value="rice" {% if user and user.crop_type and ('rice' in user.crop_type|lower or 'چاول' in user.crop_type) %}selected{% endif %}>🍚 چاول (Rice)</option>
+            </select>
+        </div>
+
+        <div id="upload-section">
+            <label for="leaf-image" class="camera-box text-center d-block mb-0" style="cursor: pointer;">
+                <i class="bi bi-images display-1 text-success"></i>
+                <h3 class="mt-3 fw-bold">تصویر منتخب کریں</h3>
+                <p class="text-muted mb-0">گیلری، فائلز یا کیمرہ — فون آپ کو اختیار دے گا</p>
+            </label>
+            <input type="file" id="leaf-image" class="visually-hidden" accept="image/*" onchange="handleFile(this)" autocomplete="off">
+        </div>
+
+        <div id="preview-container" class="mt-4">
+            <img id="image-preview" src="#">
+            <div class="d-grid gap-2 mt-4">
+                <button id="analyze-btn" class="btn btn-success btn-lg rounded-pill py-3 fw-bold" onclick="startInference()">
+                    تشخیص کریں <i class="bi bi-cpu ms-2"></i>
+                </button>
+                <button class="btn btn-outline-secondary rounded-pill" onclick="resetPage()">
+                    دوبارہ تصویر لیں
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="text-center mt-5" style="display:none;">
+            <div class="spinner-grow text-success" role="status" style="width:3rem;height:3rem;"></div>
+            <p class="mt-3 fs-5 fw-bold">AI ماڈل تجزیہ کر رہا ہے...</p>
+            <p class="text-muted">تھوڑا انتظار کریں</p>
+        </div>
+
+        <div id="pending-section" class="pending-banner mt-4">
+            <i class="bi bi-hourglass-split text-warning display-4"></i>
+            <h4 class="fw-bold mt-3">AI نتیجہ ماہر کو بھیج دیا گیا</h4>
+            <p class="text-muted">آپ کا نتیجہ زرعی ماہر کے پاس تصدیق کے لیے ہے۔ تصدیق کے بعد آپ کو نوٹیفکیشن ملے گی۔</p>
+        </div>
+
+        <div id="results" class="result-card mt-4">
+            <div id="diagnosis-header" class="diagnosis-header text-center">
+                <div id="status-badge" class="mb-2"></div>
+                <h2 id="disease-name" class="fw-bold mb-0">---</h2>
+                <span id="confidence-score" class="badge bg-secondary mt-2">--</span>
+            </div>
+            <div class="card-body p-4">
+                <div id="admin-notice" style="display:none;" class="alert alert-info mb-3">
+                    <i class="bi bi-patch-check-fill me-2"></i>
+                    <span id="admin-notice-text"></span>
+                </div>
+                <h4 class="fw-bold mb-3">مجوزہ علاج:</h4>
+                <p id="treatment-plan" class="fs-5 text-dark lh-base">---</p>
+                <div id="treatment-ur" style="display:none;" class="mt-3 p-3 bg-light rounded-3">
+                    <h5 class="fw-bold">اردو میں علاج:</h5>
+                    <p id="treatment-plan-ur" class="fs-5 lh-base"></p>
+                </div>
+                <hr>
+                <div class="d-grid gap-2">
+                    <a href="/dashboard" class="btn btn-primary rounded-pill py-2">ڈیش بورڈ پر واپس جائیں</a>
+                    <button class="btn btn-outline-success rounded-pill py-2" onclick="resetPage()">
+                        نئی تصویر اپلوڈ کریں
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function getSelectedCropType() {
+        return document.getElementById('crop-select').value;
+    }
+
+    let currentLogId = null;
+    let pollInterval = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('hk_pending_log');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                currentLogId = parsed.logId;
+                document.getElementById('upload-section').style.display = 'none';
+
+                if (parsed.status === 'verified' || parsed.status === 'overridden') {
+                    // Result already finalised — show it directly, no polling needed
+                    showResult(parsed);
+                } else {
+                    // Still pending — show waiting state and resume polling
+                    document.getElementById('pending-section').style.display = 'block';
+                    showResult({ ...parsed, status: 'pending' });
+                    startPolling(parsed.logId);
+                }
+            } catch(e) {
+                localStorage.removeItem('hk_pending_log');
+            }
+        }
+    });
+
+    function handleFile(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('upload-section').style.display = 'none';
+                document.getElementById('preview-container').style.display = 'block';
+                document.getElementById('image-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function resetPage() {
+        if (pollInterval) clearInterval(pollInterval);
+        localStorage.removeItem('hk_pending_log');
+        document.getElementById('upload-section').style.display = 'block';
+        document.getElementById('preview-container').style.display = 'none';
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('pending-section').style.display = 'none';
+        document.getElementById('leaf-image').value = '';
+        currentLogId = null;
+    }
+
+    async function startInference() {
+        const fileInput = document.getElementById('leaf-image');
+        if (!fileInput.files[0]) { alert('پہلے تصویر منتخب کریں'); return; }
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('crop_type', getSelectedCropType());
+
+        document.getElementById('preview-container').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+
+        try {
+            const response = await fetch('/analyze-disease', { method: 'POST', body: formData });
+            const data = await response.json();
+            document.getElementById('loading').style.display = 'none';
+
+            document.getElementById('pending-section').style.display = 'block';
+
+            if (data.log_id) {
+                currentLogId = data.log_id;
+                localStorage.setItem('hk_pending_log', JSON.stringify({
+                    logId:      data.log_id,
+                    disease:    data.disease,
+                    confidence: data.confidence,
+                    treatment:  data.treatment,
+                }));
+                startPolling(currentLogId);
+            }
+
+        } catch (e) {
+            document.getElementById('loading').style.display = 'none';
+            alert('سرور سے رابطہ نہیں ہوسکا');
+        }
+    }
+
+    function showResult({ disease, confidence, treatment, status, admin_diagnosis, admin_treatment, admin_treatment_ur }) {
+        const header  = document.getElementById('diagnosis-header');
+        const results = document.getElementById('results');
+        const badge   = document.getElementById('status-badge');
+        const notice  = document.getElementById('admin-notice');
+
+        results.style.display = 'block';
+
+        if (status === 'pending') {
+            header.className = 'diagnosis-header text-center';
+            badge.innerHTML  = '<span class="badge bg-warning text-dark">⏳ تصدیق جاری ہے</span>';
+            document.getElementById('disease-name').textContent     = 'ماہر جائزہ لے رہا ہے...';
+            document.getElementById('confidence-score').textContent = '';
+            document.getElementById('confidence-score').className   = 'badge bg-secondary mt-2';
+            document.getElementById('treatment-plan').textContent   = 'تصدیق کے بعد علاج کا مشورہ دکھایا جائے گا۔';
+            document.getElementById('treatment-ur').style.display   = 'none';
+            notice.style.display = 'none';
+
+        } else if (status === 'verified') {
+            header.className = 'diagnosis-header verified text-center';
+            badge.innerHTML  = '<span class="badge bg-success">✅ ماہر نے تصدیق کی</span>';
+            document.getElementById('disease-name').textContent     = disease;
+            const confPct = typeof confidence === 'string' ? confidence : (parseFloat(confidence)*100).toFixed(1)+'%';
+            document.getElementById('confidence-score').textContent = confPct + ' یقین';
+            document.getElementById('confidence-score').className   = 'badge bg-success mt-2';
+            document.getElementById('treatment-plan').textContent   = treatment || 'زرعی ماہر سے رابطہ کریں';
+            document.getElementById('treatment-ur').style.display   = 'none';
+            notice.style.display = 'block';
+            document.getElementById('admin-notice-text').textContent = 'اس تشخیص کی زرعی ماہر نے تصدیق کر دی ہے۔';
+            document.getElementById('pending-section').style.display = 'none';
+            // Save final result so refresh still shows it
+            const existing = JSON.parse(localStorage.getItem('hk_pending_log') || '{}');
+            localStorage.setItem('hk_pending_log', JSON.stringify({ ...existing, status: 'verified', disease, confidence, treatment }));
+
+        } else if (status === 'overridden') {
+            header.className = 'diagnosis-header overridden text-center';
+            badge.innerHTML  = '<span class="badge bg-primary">🔄 ماہر نے درست کیا</span>';
+            document.getElementById('disease-name').textContent     = admin_diagnosis || disease;
+            document.getElementById('confidence-score').textContent = 'ماہر کا مشورہ';
+            document.getElementById('confidence-score').className   = 'badge bg-primary mt-2';
+            document.getElementById('treatment-plan').textContent   = admin_treatment || treatment || 'زرعی ماہر سے رابطہ کریں';
+            if (admin_treatment_ur) {
+                document.getElementById('treatment-plan-ur').textContent = admin_treatment_ur;
+                document.getElementById('treatment-ur').style.display    = 'block';
+            } else {
+                document.getElementById('treatment-ur').style.display = 'none';
+            }
+            notice.style.display = 'block';
+            document.getElementById('admin-notice-text').textContent = 'زرعی ماہر نے AI نتیجہ درست کر کے نیا مشورہ بھیجا ہے۔';
+            document.getElementById('pending-section').style.display = 'none';
+            // Save final result so refresh still shows it
+            const existing2 = JSON.parse(localStorage.getItem('hk_pending_log') || '{}');
+            localStorage.setItem('hk_pending_log', JSON.stringify({ ...existing2, status: 'overridden', disease, confidence, treatment, admin_diagnosis, admin_treatment, admin_treatment_ur }));
+        }
+    }
+
+    function startPolling(logId) {
+        if (pollInterval) clearInterval(pollInterval);
+        let attempts = 0;
+        pollInterval = setInterval(async () => {
+            attempts++;
+            if (attempts > 40) { clearInterval(pollInterval); return; }
+            try {
+                const res  = await fetch(`/api/farmer/diagnosis/${logId}`);
+                const data = await res.json();
+                if (data.status === 'verified' || data.status === 'overridden') {
+                    clearInterval(pollInterval);
+                    showResult({
+                        disease:            data.disease_name,
+                        confidence:         data.confidence,
+                        treatment:          data.treatment,
+                        status:             data.status,
+                        admin_diagnosis:    data.admin_diagnosis,
+                        admin_treatment:    data.admin_treatment,
+                        admin_treatment_ur: data.admin_treatment_ur,
+                    });
+                }
+            } catch(e) { /* silently skip on network error */ }
+        }, 15000);
+    }
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
+                .then((registration) => {
+                    console.log('✅ Service Worker registered:', registration);
+                })
+                .catch((error) => {
+                    console.log('❌ Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
+
+{% set nav_active = 'disease' %}
+{% include 'partials/farmer_mobile_nav.html' %}
+</body>
+</html>

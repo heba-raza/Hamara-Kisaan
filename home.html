@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Agricultural advisory and disease diagnosis app for farmers">
+    <meta name="theme-color" content="#15803d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HKisaan">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" type="image/png" href="/static/uploads/logo-192.png">
+    <link rel="apple-touch-icon" href="/static/uploads/logo-192.png">
+    <script src="/static/js/farmer-theme.js"></script>
+    <title>Hamara Kissan - Home</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="/static/css/farmer-portal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --hk-primary: #15803d;
+            --hk-bg: #f0fdf4;
+        }
+
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            background-color: var(--hk-bg);
+            color: #1f2937;
+        }
+
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 16px rgba(21, 128, 61, 0.08);
+            border-bottom: 1px solid rgba(21, 128, 61, 0.08);
+        }
+
+        .brand-logo-slot {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #f0fdf4;
+            border: 2px dashed #86efac;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #15803d;
+            flex-shrink: 0;
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(21, 128, 61, 0.82), rgba(22, 101, 52, 0.88)),
+                        url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 20px;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+        }
+
+        .btn-primary-kissan {
+            background-color: #fff;
+            color: #15803d;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 700;
+            border: none;
+            transition: 0.25s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        .btn-primary-kissan:hover {
+            background-color: #f0fdf4;
+            color: #166534;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-kissan {
+            border: 2px solid var(--hk-primary);
+            color: var(--hk-primary);
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 700;
+            transition: 0.25s;
+            background: #fff;
+        }
+        .btn-outline-kissan:hover {
+            background: #f0fdf4;
+        }
+
+        .feature-card {
+            background: white;
+            border: 1px solid rgba(21, 128, 61, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(21, 128, 61, 0.06);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(21, 128, 61, 0.12);
+        }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background-color: #f0fdf4;
+            color: #15803d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            border: 1px solid rgba(134, 239, 172, 0.5);
+        }
+
+        .info-strip {
+            background: #fff;
+            border-right: 4px solid #15803d;
+            border-radius: 12px;
+            border: 1px solid rgba(21, 128, 61, 0.1);
+            box-shadow: 0 2px 12px rgba(21, 128, 61, 0.06);
+        }
+    </style>
+</head>
+<body class="hk-home">
+
+    <nav class="navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <span class="brand-logo-slot" aria-hidden="true" style="overflow:hidden;border-radius:999px;">
+                    <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:999px;">
+                </span>
+                <span class="fw-bold hk-home-brand-text" style="color:#15803d;">ہمارا کسان</span>
+            </a>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="hk-home-theme-btn" onclick="toggleFarmerTheme()">
+                    <i class="bi bi-moon-stars farmer-theme-icon-when-light"></i>
+                    <i class="bi bi-sun-fill farmer-theme-icon-when-dark"></i>
+                    <span class="farmer-theme-label"></span>
+                </button>
+                <a href="/login" class="btn btn-sm btn-outline-kissan px-3">لاگ ان</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-3">اپنی فصل کو خوشحال بنائیں</h1>
+            <p class="lead mb-4">زرعی ماہرین کے مشورے اور جدید ٹیکنالوجی اب آپ کے موبائل پر</p>
+            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                <a href="/register" class="btn btn-primary-kissan btn-lg px-5 shadow">
+                    ابھی رجسٹر کریں
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container my-5">
+        <div class="row g-4">
+            <div class="col-6 col-md-3 text-center">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-circle">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <h6 class="fw-bold">بیماری کی تشخیص</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 text-center">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-circle">
+                        <i class="bi bi-cloud-sun"></i>
+                    </div>
+                    <h6 class="fw-bold">موسم کی رپورٹ</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 text-center">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-circle">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                    <h6 class="fw-bold">زرعی مشورے</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 text-center">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-circle">
+                        <i class="bi bi-newspaper"></i>
+                    </div>
+                    <h6 class="fw-bold">تازہ ترین خبریں</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="container mb-5">
+        <div class="p-4 info-strip">
+            <h5 class="fw-bold" style="color:#15803d;">فیصل آباد کے کسانوں کے لیے</h5>
+            <p class="mb-0 text-muted small">گندم اور چاول کی فصل کے لیے خصوصی رہنمائی دستیاب ہے۔</p>
+        </div>
+    </section>
+
+    <footer class="py-4 text-center border-top">
+        <p class="text-muted small">© 2026 ہمارا کسان - تمام حقوق محفوظ ہیں</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
+                    .then((registration) => {
+                        console.log('✅ Service Worker registered:', registration);
+                    })
+                    .catch((error) => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

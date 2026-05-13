@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Agricultural advisory and disease diagnosis app for farmers">
+<meta name="theme-color" content="#15803d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HKisaan">
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<link rel="icon" type="image/png" href="/static/uploads/logo-192.png">
+<link rel="apple-touch-icon" href="/static/uploads/logo-192.png">
+<script src="/static/js/farmer-theme.js"></script>
+<title>ہمارا کسان - لاگ ان</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="/static/css/farmer-portal.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Noto Nastaliq Urdu',serif;
+  background:linear-gradient(165deg,#f0fdf4 0%,#dcfce7 100%);
+  min-height:100vh;
+  padding:2rem 1rem;
+  direction:rtl;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.brand-bar{text-align:center;margin-bottom:1.5rem}
+.brand-logo{
+  display:inline-flex;align-items:center;gap:12px;
+  background:#fff;color:#15803d;
+  padding:.6rem 1.25rem;border-radius:16px;
+  font-size:1.1rem;font-weight:700;
+  border:1px solid rgba(21,128,61,.12);
+  box-shadow:0 4px 20px rgba(21,128,61,.08);
+}
+.logo-slot{
+  width:44px;height:44px;border-radius:10px;
+  background:#f0fdf4;border:2px dashed #86efac;
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:700;color:#15803d;flex-shrink:0;
+}
+
+.card{
+  background:#fff;border-radius:20px;border:1px solid rgba(21,128,61,.1);
+  overflow:hidden;box-shadow:0 8px 40px rgba(21,128,61,.1);
+  width:100%;max-width:420px;
+}
+.card-header{
+  background:linear-gradient(135deg,#15803d 0%,#166534 55%,#14532d 100%);
+  padding:1.8rem 1.75rem 1.5rem;
+}
+.header-title{color:#fff;font-size:1.4rem;font-weight:700;line-height:1.6}
+.header-sub{color:rgba(255,255,255,.75);font-size:.85rem;margin-top:.3rem;line-height:2}
+
+.form-body{padding:1.75rem}
+
+.field-group{margin-bottom:1.1rem}
+label{display:block;font-size:.82rem;color:#166534;font-weight:600;margin-bottom:.35rem;line-height:1.8}
+.required{color:#c0392b;margin-right:3px}
+
+input{
+  width:100%;padding:.65rem .9rem;
+  border:1.5px solid #bbf7d0;border-radius:10px;
+  font-family:Arial,sans-serif;font-size:.95rem;
+  color:#14532d;background:#f0fdf4;
+  transition:border-color .2s,box-shadow .2s;
+  direction:ltr;text-align:left;outline:none;
+}
+input::placeholder{color:#86a793;font-size:.85rem}
+input:focus{border-color:#15803d;background:#fff;box-shadow:0 0 0 3px rgba(21,128,61,.12)}
+
+.phone-wrap{position:relative}
+.phone-prefix{
+  position:absolute;right:0;top:0;bottom:0;width:55px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;color:#15803d;font-weight:700;
+  border-left:1.5px solid #bbf7d0;border-radius:0 10px 10px 0;
+  background:#ecfdf5;font-family:Arial,sans-serif;
+}
+.phone-wrap input{padding-right:62px}
+
+.pass-wrap{position:relative}
+.eye-btn{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:#5a8a68;padding:4px;font-size:16px;
+}
+
+.error-msg{
+  display:none;background:#fef0f0;border:1.5px solid #e74c3c;
+  border-radius:8px;padding:4px 10px;color:#c0392b;
+  font-size:.75rem;margin-top:4px;line-height:1.8;
+  font-family:'Noto Nastaliq Urdu',serif;
+}
+
+.forgot-row{text-align:left;margin-top:.3rem;margin-bottom:1rem}
+.forgot-row a{color:#15803d;font-size:.78rem;text-decoration:none;font-family:Arial,sans-serif}
+
+.submit-btn{
+  width:100%;padding:.9rem;background:#15803d;color:#fff;
+  border:none;border-radius:12px;
+  font-family:'Noto Nastaliq Urdu',serif;font-size:1.05rem;font-weight:700;
+  cursor:pointer;transition:background .2s;line-height:1.8;
+}
+.submit-btn:hover{background:#166534}
+
+.register-row{
+  text-align:center;margin-top:1rem;
+  font-size:.82rem;color:#6b7280;line-height:2.2;
+}
+.register-row a{color:#15803d;font-weight:700;text-decoration:none}
+
+.card-footer{
+  background:#f0fdf4;border-top:1px solid rgba(21,128,61,.12);
+  padding:.85rem 1.75rem;
+  display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;
+}
+.footer-badge{display:flex;align-items:center;gap:5px;font-size:.72rem;color:#166534}
+.dot-green{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block}
+</style>
+</head>
+<body class="farmer-auth">
+
+<button type="button" class="farmer-auth-theme-btn" onclick="toggleFarmerTheme()">
+  <i class="bi bi-moon-stars farmer-theme-icon-when-light"></i>
+  <i class="bi bi-sun-fill farmer-theme-icon-when-dark"></i>
+  <span class="farmer-theme-label"></span>
+</button>
+
+<div class="brand-bar">
+  <div class="brand-logo">
+    <span class="logo-slot" aria-hidden="true">
+      <img src="/static/uploads/hk-logo-circle.png" alt="ہمارا کسان" style="width:100%;height:100%;object-fit:cover;border-radius:999px;display:block;">
+    </span>
+    ہمارا کسان
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="header-title">🌾 لاگ ان کریں</div>
+    <div class="header-sub">اپنے اکاؤنٹ میں داخل ہوں</div>
+  </div>
+
+  <div class="form-body">
+    <form id="loginForm" action="/login" method="POST">
+
+      <div class="field-group">
+        <label>موبائل نمبر <span class="required">*</span></label>
+        <div class="phone-wrap">
+          <div class="phone-prefix">+92</div>
+          <input type="tel" name="phone" id="phone" placeholder="3001234567">
+        </div>
+        <div class="error-msg" id="err-phone">10 ہندسے درج کریں، 3 سے شروع ہوں</div>
+      </div>
+
+      <div class="field-group">
+        <label>پاسورڈ <span class="required">*</span></label>
+        <div class="pass-wrap">
+          <input type="password" name="password" id="password" placeholder="اپنا پاسورڈ درج کریں">
+          <button type="button" class="eye-btn" onclick="togglePass()" aria-label="پاسورڈ دکھائیں یا چھپائیں">
+            <i class="bi bi-eye" id="login-pass-eye" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="error-msg" id="err-pass">پاسورڈ درج کریں</div>
+      </div>
+
+      <!-- Forgot password removed for this project -->
+
+      <div class="error-msg" id="err-login" style="margin-bottom:.8rem">موبائل نمبر یا پاسورڈ غلط ہے</div>
+
+      <button type="submit" class="submit-btn">لاگ ان کریں →</button>
+
+      <div class="register-row">
+      نیا کسان؟ <a href="/register">رجسٹریشن کریں</a>
+  </div>
+    </form>
+  </div>
+
+  <div class="card-footer">
+    <div class="footer-badge"><span class="dot-green"></span> محفوظ لاگ ان</div>
+    <div class="footer-badge"><span class="dot-green"></span> مفت سروس</div>
+    <div class="footer-badge"><span class="dot-green"></span> فیصل آباد</div>
+  </div>
+</div>
+
+<script>
+document.getElementById('phone').addEventListener('input',function(){
+  this.value=this.value.replace(/\D/g,'').slice(0,10);
+});
+function togglePass(){
+  var inp=document.getElementById('password');
+  var icon=document.getElementById('login-pass-eye');
+  inp.type=inp.type==='password'?'text':'password';
+  if(icon) icon.className='bi '+(inp.type==='password'?'bi-eye':'bi-eye-slash');
+}
+function err(id,show){
+  var el=document.getElementById(id);
+  if(el)el.style.display=show?'block':'none';
+}
+document.getElementById('loginForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var ok=true;
+  var phone=document.getElementById('phone').value.trim();
+  var phoneValid=/^3\d{9}$/.test(phone);
+  err('err-phone',!phoneValid);if(!phoneValid)ok=false;
+  var pass=document.getElementById('password').value;
+  err('err-pass',!pass);if(!pass)ok=false;
+  if(ok)this.submit();
+});
+</script>
+<!-- PWA Service Worker Registration -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
+                .then((registration) => {
+                    console.log('✅ Service Worker registered:', registration);
+                })
+                .catch((error) => {
+                    console.log('❌ Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
+</body>
+</html>
